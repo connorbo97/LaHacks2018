@@ -20,7 +20,7 @@ class Home extends Component{
   render() {
     return (
       <div>
-      	  <SignOut/>
+      	<SignOut/>
 	      <SearchByKaiserNumber setResult={this.setResult}/>
 	      <SearchByChair/>
 	      <SearchByDate/>
