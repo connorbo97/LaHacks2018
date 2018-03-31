@@ -43,8 +43,10 @@ class Home extends Component{
   	console.log(this.state.result)
     return (
       <div>
-      	  <SignOut/>
+    	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
+      	<SignOut/>
+	      <SearchByKaiserNumber setResult={this.setResult}/>
 	      <SearchByDate/>
 	      <Result results={this.state.results} type={this.state.type}/>
 

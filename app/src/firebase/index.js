@@ -17,15 +17,6 @@ firebase.initializeApp(config);
 
 const auth = firebase.auth()
 
-firebase.auth().getRedirectResult().then(function(result) {
-  if (result.credential) {
-    // This gives you a Google Access Token.
-    var token = result.credential.accessToken;
-  }
-  var user = result.user;
-});
-
-
 const signInWithGoogle = () => {
 	var provider = new firebase.auth.GoogleAuthProvider();
 	provider.addScope('profile');
