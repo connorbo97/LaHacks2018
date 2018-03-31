@@ -5,16 +5,30 @@ import auth from '../firebase/index.js'
 class SearchByKaiserNumber extends Component{
   constructor(props) {
     super(props);
-  }
-  setResult(){
 
+    this.state = {
+      number:""
+    }
+
+    this.setNumber = this.setNumber.bind(this)
+    this.onSubmit = this.onSubmit.bind(this)
+  }
+
+  setNumber(event){
+    this.setState({number:event.target.value})
+  }
+
+  onSubmit(event){
+    event.preventDefault()
+    this.props.setKaiserNumberResult(this.state.number)
   }
 
   render() {
+    console.log(this.state.number)
     return (
-      <form>
+      <form onSubmit={this.onSubmit}>
         Kaiser Number
-        <input type="text" placeholder="XXXXXXXXXX"/>
+        <input type="text" placeholder="XXXXXXXXXX" value={this.state.number} onChange={this.setNumber}/>
       </form>
     );
   }

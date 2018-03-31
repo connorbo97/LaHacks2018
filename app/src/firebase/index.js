@@ -42,7 +42,11 @@ const signOut = () => {
 	auth.signOut()
 }
 
+const database = firebase.database()
+
+
 export default {
+  database,
   auth,
   signInWithGoogle,
   signOut,
