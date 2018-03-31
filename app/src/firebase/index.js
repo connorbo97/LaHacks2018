@@ -38,7 +38,12 @@ const signInWithGoogle = () => {
 	});
 }
 
+const signOut = () => {
+	auth.signOut()
+}
+
 export default {
   auth,
   signInWithGoogle,
+  signOut,
 };

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
-import * as routes from '../constants/routes';
 
 class SignIn extends Component{
   constructor(props) {

@@ -20,6 +20,7 @@ import * as routes from '../constants/routes';
 import auth from '../firebase/index.js'
 import SignIn from './SignIn.js'
 import Navigation from './Navigation';
+import Loading from './Loading';
 import Home from './Home';
 
 class App extends Component{
@@ -29,6 +30,7 @@ class App extends Component{
     this.state = {
       uid:null,
       pathname:"/loading",
+      checkedAuth:false,
     }
 
     this.onAuthChangeHandler = this.onAuthChangeHandler.bind(this)
@@ -37,13 +39,14 @@ class App extends Component{
   }
 
   onAuthChangeHandler(user){
-    console.log("what")
     if (user) {
       console.log("User signed in")
       this.setState({uid:user.uid})
     } else {
       console.log("User not logged in")
+      this.setState({uid:null})
     }
+    this.setState({checkedAuth:true})
   } 
 
   setPathname(path){
@@ -51,6 +54,10 @@ class App extends Component{
   }
 
   render(){
+    console.log(this.state.uid)
+    console.log(this.state.checkedAuth)
+    if(!this.state.checkedAuth)
+      return (<Loading/>)
     return(
       <Router>
         <div>
@@ -62,11 +69,11 @@ class App extends Component{
           />
           <Route
             exact path={routes.SIGN_IN}
-            component={() => (this.state.uid ? (<Redirect to={routes.SIGN_IN}/>) : (<SignIn />))}
+            component={() => (this.state.uid ? (<Redirect to={routes.HOME}/>) : (<SignIn />))}
           />
           <Route
             exact path={routes.HOME}
-            component={() => (!this.state.uid ? (<Redirect to={routes.SIGN_IN}/>) : (<Home />))}
+            component={() => ((!this.state.uid) ? (<Redirect to={routes.SIGN_IN}/>) : (<Home />))}
           />
         </div>
       </Router>

@@ -7,14 +7,10 @@ class SignOut extends Component{
     super(props);
   }
 
-  onSignOut(){
-    auth.signOut()
-  }
-
   render() {
     return (
       <div>
-        <button onClick={this.onSignOut}>Sign Out</button>
+        Loading
       </div>
     );
   }
