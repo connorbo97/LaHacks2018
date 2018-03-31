@@ -58,14 +58,15 @@ class App extends Component{
           <hr/>
           <Route
             exact path={routes.LANDING}
-            component={() => (this.state.uid ? (<Redirect to={routes.HOME}/>) : (<div>Welcome!<SignIn /></div>))}/>
+            component={() => (this.state.uid ? (<Redirect to={routes.HOME}/>) : (<div>Welcome!<SignIn /></div>))}
+          />
           <Route
             exact path={routes.SIGN_IN}
-            component={() => (this.state.uid ? (<Redirect to={routes.SIGN_IN}/>) : (<SignIn />))}/>}
+            component={() => (this.state.uid ? (<Redirect to={routes.SIGN_IN}/>) : (<SignIn />))}
           />
           <Route
             exact path={routes.HOME}
-            component={() => <Home />}
+            component={() => (!this.state.uid ? (<Redirect to={routes.SIGN_IN}/>) : (<Home />))}
           />
         </div>
       </Router>
