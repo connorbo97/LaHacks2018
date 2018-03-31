@@ -14,7 +14,7 @@ class Home extends Component{
     super(props);
     this.state={
 	    	result:[],
-	    	type:"",
+	    	type:"KN",
     	}
     this.setResult = this.setResult.bind(this)
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
@@ -27,6 +27,7 @@ class Home extends Component{
   async setKaiserNumberResult(kaiserNumber){
   	
     var snap = await fire.database.ref(`/patients/${kaiserNumber}/appointments`).once('value')
+
     if(!snap.val()){
       alert("Error: ref not found")
       return
@@ -45,10 +46,9 @@ class Home extends Component{
       <div>
     	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
-      	<SignOut/>
-	      <SearchByKaiserNumber setResult={this.setResult}/>
 	      <SearchByDate/>
-	      <Result results={this.state.results} type={this.state.type}/>
+        <AddAppointment />
+	      <Result result={this.state.result} type={this.state.type}/>
 
       </div>
     );

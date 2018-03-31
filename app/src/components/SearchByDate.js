@@ -14,9 +14,9 @@ class SearchByDate extends Component{
     return (
       <form>
         Date
-        <input type="text" placeholder="MM"/>/
-        <input type="text" placeholder="DD"/>/
-        <input type="text" placeholder="YYYY"/>
+        <input type="text" placeholder="MM" size="2" maxLength="2"/>/
+        <input type="text" placeholder="DD" size="2" maxLength="2"/>/
+        <input type="text" placeholder="YYYY" size="4" maxLength="4"/>
       </form>
     );
   }
