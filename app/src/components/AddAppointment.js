@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import fire from '../firebase/index.js'
+import validator from 'validator'
 
 class AddAppointment extends Component
 {
@@ -192,7 +193,57 @@ class AddAppointment extends Component
 
   async onClicked()
   {
-    var {day, month, year, hour, halfHour, numIntervals} = this.state
+    var {day, month, year, hour, halfHour, numIntervals, kaiserNumber} = this.state
+
+    if (!validator.isNumeric(kaiserNumber.toString()))
+    {
+      alert("Error: Kaiser Number must contain only digits.")
+      return
+    }
+    if (kaiserNumber.toString().length != 10 || parseInt(kaiserNumber.toString()) < 0)
+    {
+      alert("Error: Kaiser Number must contain 10 digits.")
+      return
+    }
+
+
+
+    if ( !validator.isNumeric(month.toString())   ||  !validator.isNumeric(year.toString()) ||  !validator.isNumeric(day.toString()) ||  parseInt(month.toString()) < 0 || parseInt(year.toString()) < 0 || parseInt(day.toString()) < 0)
+    {
+      alert("Error: Month, Day, and Year must only contain digits.")
+      return
+    }
+
+
+    if (month.toString().length != 2   ||    day.toString().length != 2     ||    year.toString().length != 4)
+    {
+      alert("Error: Date must be in the form MM/DD/YYYY.")
+      return
+    }
+
+
+    if (!validator.isNumeric(hour.toString())   ||   !validator.isNumeric(halfHour.toString()) )
+    {
+      alert("Error: Start time must contain only digits.")
+      return
+    }
+
+
+    if (hour.toString().length != 2   ||    halfHour.toString().length != 2)
+    {
+      alert("Error: Start time must be in the form XX:XX.")
+      return
+    }
+
+
+
+
+
+
+
+
+
+
     //check if the date is already taken
     var chairAvail = await this.isAvailable(this.state)
     console.log(chairAvail)
@@ -213,7 +264,7 @@ class AddAppointment extends Component
       <div>
           <hr/>
         	Add appointment <br/>
-          Kaiser Number<input type="text" placeholder="XXXXXXXXXX" value={this.state.kaiserNumber} onChange={(event)=>{this.setKaiserNumber(event.target.value)}}/> <br/>
+          Kaiser Number<input type="text" size="11" maxLength="10" placeholder="XXXXXXXXXX" value={this.state.kaiserNumber} onChange={(event)=>{this.setKaiserNumber(event.target.value)}}/> <br/>
           Date<input type="text" placeholder="MM" size="2" maxLength="2" value={this.state.month} onChange={(event)=>{this.setMonth(event.target.value)}}/>/
           <input type="text" placeholder="DD" size="2" maxLength="2" value={this.state.day} onChange={(event)=>{this.setDay(event.target.value)}}/>/
           <input type="text" placeholder="YYYY" size="4" maxLength="4" value={this.state.year} onChange={(event)=>{this.setYear(event.target.value)}}/> <br/>

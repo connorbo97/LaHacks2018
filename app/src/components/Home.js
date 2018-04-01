@@ -8,6 +8,7 @@ import SignOut from './SignOut.js'
 import Result from './Result.js'
 import AddAppointment from './AddAppointment.js'
 import fire from '../firebase/index.js'
+import validator from 'validator'
 
 class Home extends Component{
 
@@ -31,10 +32,22 @@ class Home extends Component{
 
   async setKaiserNumberResult(kaiserNumber){
 
+    //DEAL WITH THUS ALTWR
+    if (!validator.isNumeric(kaiserNumber.toString()))
+    {
+      alert("Error: Kaiser Number must contain only digits.")
+      return
+    }
+    if (kaiserNumber.toString().length != 10 || parseInt(kaiserNumber.toString()) < 0)
+    {
+      alert("Error: Kaiser Number must contain 10 digits.")
+      return
+    }
+
     var snap = await fire.database.ref(`/patients/${kaiserNumber}/appointments`).once('value')
 
     if(!snap.val()){
-      alert("Error: ref not found")
+      alert(`No appointment history found for Kaiser #: ${kaiserNumber}`)
       return
     }
   	var json = snap.val()
@@ -50,7 +63,7 @@ class Home extends Component{
     var {month, day, year} = state
     var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
     if(!snap.val()){
-      alert("Error: ref not found")
+      alert(`No appointments on date: ${state.month}/${state.day}/${state.year}`)
       return
     }
     var json = snap.val()

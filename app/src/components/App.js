@@ -46,6 +46,7 @@ class App extends Component{
       console.log("User not logged in")
       this.setState({uid:null})
     }
+
     this.setState({checkedAuth:true})
   } 
 
@@ -58,6 +59,8 @@ class App extends Component{
     console.log(this.state.checkedAuth)
     if(!this.state.checkedAuth)
       return (<Loading/>)
+
+    
     return(
       <Router>
         <div>

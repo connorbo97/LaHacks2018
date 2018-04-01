@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import validator from 'validator'
 
 class SearchByDate extends Component{
   constructor(props) {
     super(props);
 
     this.state = {
-      day: "12",
-      month: "2",
-      year: "2018",
+      day: "",
+      month: "",
+      year: "",
     }
 
     this.setDay = this.setDay.bind(this)
@@ -32,6 +33,58 @@ class SearchByDate extends Component{
 
   onSubmit(event){
     event.preventDefault()
+
+
+    if (!validator.isNumeric(this.state.day.toString())   ||  !validator.isNumeric(this.state.month.toString()) ||  !validator.isNumeric(this.state.year.toString()))
+    {
+      alert("Error: Month, Day, and Year must contain only digits.")
+      return
+    }
+
+
+    if (this.state.month.toString().length != 2 || this.state.day.toString().length != 2 || this.state.year.toString().length != 4)
+    {
+      alert("Error: Date must be in the form MM/DD/YYYY.")
+      return
+    }
+
+
+    if (parseInt(this.state.month) < 1 || parseInt(this.state.month) > 12)
+    {
+      alert("Error: Invalid Month.")
+      return
+    }
+
+
+
+    if (parseInt(this.state.day) < 1 )
+    {
+      alert("Error: Invalid Day.")
+      return
+    }
+
+    /*  CONNOR
+    var temp = new Date()
+    temp.setDate(30)
+    temp.setMonth(1)
+    temp.setYear(2018)
+    console.log(temp.getDate())
+    console.log(temp.toString())
+    */
+
+    var temp = new Date()
+    temp.setDate(this.state.day)
+    temp.setMonth(this.state.month - 1)
+    temp.setYear(this.state.year)
+
+    if (temp.getDate() != this.state.day)
+    {
+      alert("Error: Invalid Day.")
+      return
+    }
+
+
+
     this.props.setDateResult(this.state)
   }
 
