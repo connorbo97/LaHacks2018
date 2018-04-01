@@ -27,8 +27,10 @@ class SearchByKaiserNumber extends Component{
     console.log(this.state.number)
     return (
       <form onSubmit={this.onSubmit}>
+        Search Appointments by Patient's Kaiser Number <br/>
         Kaiser Number
         <input type="text" placeholder="XXXXXXXXXX" value={this.state.number} onChange={this.setNumber}/>
+        <hr/>
       </form>
     );
   }

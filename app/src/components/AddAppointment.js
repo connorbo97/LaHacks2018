@@ -4,26 +4,69 @@ import fire from '../firebase/index.js'
 
 class AddAppointment extends Component
 {
-  constructor(props) 
+  constructor(props)
   {
     super(props);
-    this.state = 
+    this.state =
     {
-      kaiserNumber:"1234567890",
-      month:"03",
-      day:"12",
-      year:"2018",
-      hour:"09",
-      halfHour:"00",
-      numIntervals:5,
+      kaiserNumber:"",
+      month:"",
+      day:"",
+      year:"",
+      hour:"",
+      halfHour:"",
+      numIntervals:-1,
+      durationHour:"",
+      durationMinutes: "",
+
     }
 
     this.onClicked = this.onClicked.bind(this)
     this.isAvailable = this.isAvailable.bind(this)
     this.addToDatabase = this.addToDatabase.bind(this)
+    this.setKaiserNumber = this.setKaiserNumber.bind(this)
+    this.setMonth = this.setMonth.bind(this)
+    this.setDay = this.setDay.bind(this)
+    this.setYear = this.setYear.bind(this)
+    this.setHour = this.setHour.bind(this)
+    this.setHalfHour = this.setHalfHour.bind(this)
+    this.setDurationHour = this.setDurationHour.bind(this)
+    this.setDurationMinutes = this.setDurationMinutes.bind(this)
+
+
   }
 
+  setKaiserNumber(kaiserNumber){
+    this.setState({kaiserNumber})
+  }
 
+  setMonth(month){
+    this.setState({month})
+  }
+
+  setDay(day){
+    this.setState({day})
+  }
+
+  setYear(year){
+    this.setState({year})
+  }
+
+  setHour(hour){
+    this.setState({hour})
+  }
+
+  setHalfHour(halfHour){
+    this.setState({halfHour})
+  }
+
+  setDurationHour(durationHour){
+    this.setState({durationHour})
+  }
+
+  setDurationMinutes(durationMinutes){
+    this.setState({durationMinutes})
+  }
 
   async isAvailable(state)
   {
@@ -92,9 +135,10 @@ class AddAppointment extends Component
   async addToDatabase(chairAvail)
   {
 
-    var {day, month, year, hour, halfHour, numIntervals, kaiserNumber} = this.state
+    var {day, month, year, hour, halfHour, numIntervals, kaiserNumber, durationHour,durationMinutes} = this.state
     //check if the date is already taken
-
+    numIntervals = durationHour*2 + Math.ceil(durationMinutes/30)
+    this.setState({numIntervals})
     var date = new Date()
     date.setDate(parseInt(day))
     date.setMonth(parseInt(month))
@@ -139,7 +183,7 @@ class AddAppointment extends Component
       }
 
       let temp = parseInt(hour) + i
-      await fire.database.ref(`/dates/${year}/${month}/${day}/chairs/${chairAvail}/timeSlots/${temp.toString().padStart(2,"0")}`).update(tempJSON) 
+      await fire.database.ref(`/dates/${year}/${month}/${day}/chairs/${chairAvail}/timeSlots/${temp.toString().padStart(2,"0")}`).update(tempJSON)
       i++
 
     }
@@ -167,13 +211,21 @@ class AddAppointment extends Component
   render() {
     return (
       <div>
-      	Add appointment
-        Kaiser Number<input type="text" placeholder="XXXXXXXXXX"/>
-        <input type="text" placeholder="MM" size="2" maxLength="2"/>/
-        <input type="text" placeholder="DD" size="2" maxLength="2"/>/
-        <input type="text" placeholder="YYYY" size="4" maxLength="4"/>
-        <button onClick={this.onClicked}/>
-      </div>
+          <hr/>
+        	Add appointment <br/>
+          Kaiser Number<input type="text" placeholder="XXXXXXXXXX" value={this.state.kaiserNumber} onChange={(event)=>{this.setKaiserNumber(event.target.value)}}/> <br/>
+          Date<input type="text" placeholder="MM" size="2" maxLength="2" value={this.state.month} onChange={(event)=>{this.setMonth(event.target.value)}}/>/
+          <input type="text" placeholder="DD" size="2" maxLength="2" value={this.state.day} onChange={(event)=>{this.setDay(event.target.value)}}/>/
+          <input type="text" placeholder="YYYY" size="4" maxLength="4" value={this.state.year} onChange={(event)=>{this.setYear(event.target.value)}}/> <br/>
+          Start Time<input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.hour} onChange={(event)=>{this.setHour(event.target.value)}}/>:
+          <input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.halfHour} onChange={(event)=>{this.setHalfHour(event.target.value)}}/><br/>
+          Length of Appointment<input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.durationHour} onChange={(event)=>{this.setDurationHour(event.target.value)}}/>:
+          <input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.durationMinutes} onChange={(event)=>{this.setDurationMinutes(event.target.value)}}/>
+          <button onClick={this.onClicked}>
+            Add Appointment
+          </button>
+          <br/>
+         </div>
     );
   }
 }

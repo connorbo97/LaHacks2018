@@ -39,6 +39,7 @@ class SearchByDate extends Component{
     console.log(this.state)
     return (
       <div>
+        Search Appointments by Date <br/>
         <form onSubmit={this.onSubmit}>
           Month
           <input type="text" placeholder="MM" size="2" maxLength="2" value = {this.state.month} onChange={this.setMonth}/>
