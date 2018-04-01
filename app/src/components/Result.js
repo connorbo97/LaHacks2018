@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
+import KaiserNumberResult from './KaiserNumberResult.js'
+import DateResult from './DateResult.js'
 
 class Result extends Component{
   constructor(props) {
@@ -8,12 +10,13 @@ class Result extends Component{
   }
 
   render() {
-    return (
-      <div>
-      	<ul>
-      	</ul>
-      </div>
-    );
+    if(this.props.type == "KN"){
+      return (<KaiserNumberResult result={this.props.result}/>)
+    } else if(this.props.type == "D"){
+      return (<DateResult result={this.props.result}/>);
+    } else {
+      return (<span>Use filters above to search for appointments</span>)
+    }
   }
 }
 
