@@ -9,6 +9,8 @@ import Result from './Result.js'
 import AddAppointment from './AddAppointment.js'
 import fire from '../firebase/index.js'
 import {Grid, Row, Col} from 'react-bootstrap'
+import validator from 'validator'
+
 class Home extends Component{
 
   constructor(props) {
@@ -20,27 +22,56 @@ class Home extends Component{
         day:"",
         year:"",
         errorMsg:"",
+        loading:false,
+        kaiserID:"",
     	}
     this.setResult = this.setResult.bind(this)
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
     this.setDateResult = this.setDateResult.bind(this)
     this.setErrorMsg = this.setErrorMsg.bind(this)
+    this.setLoading = this.setLoading.bind(this)
+    this.setKaiserID = this.setKaiserID.bind(this)
   }
 
   setResult(result){
   	this.setState({result})
   }
 
+  setLoading(loading){
+    this.setState({loading})
+  }
+
+  setKaiserID(kaiserID){
+    this.setState({kaiserID})
+  }
+
+
+
   setErrorMsg(errorMsg){
     this.setState({errorMsg})
   }
 
   async setKaiserNumberResult(kaiserNumber){
+    this.setLoading(true)
+    //DEAL WITH THUS ALTWR
+    if (!validator.isNumeric(kaiserNumber.toString()))
+    {
+      this.setLoading(false)
+      alert("Error: Kaiser Number must contain only digits.")
+      return
+    }
+    if (kaiserNumber.toString().length != 10 || parseInt(kaiserNumber.toString()) < 0)
+    {
+      this.setLoading(false)
+      alert("Error: Kaiser Number must contain 10 digits.")
+      return
+    }
 
     var snap = await fire.database.ref(`/patients/${kaiserNumber}/appointments`).once('value')
 
     if(!snap.val()){
-      alert("Error: ref not found")
+      this.setLoading(false)
+      alert(`No appointment history found for Kaiser #: ${kaiserNumber}`)
       return
     }
   	var json = snap.val()
@@ -48,15 +79,21 @@ class Home extends Component{
   	for(var prop in json){
   		arr.push({date:prop, chair:json[prop].chair, numIntervals:json[prop].numIntervals})
   	}
+    this.setLoading(false)
+    this.setKaiserID(kaiserNumber.toString())
     this.setType("KN")
   	this.setResult(arr)
   }
 
   async setDateResult(state){
     var {month, day, year} = state
+
+    this.setLoading(true)
+
     var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
     if(!snap.val()){
-      alert("Error: ref not found")
+      this.setLoading(false)
+      alert(`No appointments on date: ${state.month}/${state.day}/${state.year}`)
       return
     }
     var json = snap.val()
@@ -78,6 +115,7 @@ class Home extends Component{
           }
       }
     }
+    this.setLoading(false)
     this.setResult(arr)
     this.setTime(month,day,year)
     this.setType("D")
@@ -94,12 +132,6 @@ class Home extends Component{
   render() {
     console.log("arr:")
   	console.log(this.state.result)
-    var temp = new Date()
-    temp.setDate(30)
-    temp.setMonth(1)
-    temp.setYear(2018)
-    console.log(temp.getDate())
-    console.log(temp.toString())
     return (
       <div>
         <Grid bsClass="container">
@@ -110,12 +142,17 @@ class Home extends Component{
              <SearchByDate setErrorMsg={this.setErrorMsg} setDateResult={this.setDateResult} />
             </Col>
             <Col md={10} ld={10} style={{width:"50%"}}>
-              <AddAppointment setErrorMsg={this.setErrorMsg}/>
+              <AddAppointment setErrorMsg={this.setErrorMsg} redoSearch={()=>{
+                if(this.state.type == "KN")
+                  this.setKaiserNumberResult(this.state.kaiserID)
+                else if(this.state.type == "D")
+                  this.setDateResult({month:this.state.month, year:this.state.year, day:this.state.day})
+              }}/>
             </Col>
           </Row>
         </Grid>
         <hr/>
-	      <Result result={this.state.result} errorMsg={this.state.errorMsg} type={this.state.type} day={this.state.day} year={this.state.year} month={this.state.month}/>
+	      <Result loading={this.state.loading} result={this.state.result} errorMsg={this.state.errorMsg} type={this.state.type} day={this.state.day} year={this.state.year} month={this.state.month}/>
       </div>
     );
   }

@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
-import {Form, FormGroup, ControlLabel, FormControl, Button} from 'react-bootstrap'
+import {Form, FormGroup, ControlLabel, FormControl, Button, Label} from 'react-bootstrap'
+import validator from 'validator'
 
 class SearchByKaiserNumber extends Component{
   constructor(props) {
     super(props);
 
     this.state = {
-      number:"1234567890",
+      number:"",
       searchInProgress:false,
     }
 
@@ -17,7 +18,8 @@ class SearchByKaiserNumber extends Component{
     this.setSearchInProgress = this.setSearchInProgress.bind(this)
   }
 
-  setNumber(event){
+  setNumber(event)
+  {
     this.setState({number:event.target.value})
   }
   setSearchInProgress(searchInProgress){
@@ -27,6 +29,23 @@ class SearchByKaiserNumber extends Component{
   onSubmit(event){
     event.preventDefault()
     this.setSearchInProgress(true)
+
+    if (!validator.isNumeric(this.state.number.toString()))
+    {
+
+      this.setSearchInProgress(false)
+      alert("Error: Kaiser Number must contain only digits.")
+      return
+    }
+
+
+    if (this.state.number.toString().length != 10 || parseInt(this.state.number.toString()) < 0)
+    {
+      this.setSearchInProgress(false)
+      alert("Error: Kaiser Number must contain 10 digits.")
+      return
+    }
+
     this.props.setKaiserNumberResult(this.state.number)
     this.setSearchInProgress(false)
     this.props.setErrorMsg("")
@@ -36,9 +55,10 @@ class SearchByKaiserNumber extends Component{
     return (
 
       <Form inline onSubmit={this.onSubmit}>
-        {'Search by Patient\'s Kaiser Number: '}
+        <h2><Label bsStyle="primary" style={{border:"#000 4px solid"}}>Search by Patient{'\''}s Kaiser Number</Label></h2>
+        {' Kaiser Number: '}
         <FormGroup controlId="inLineNumber">
-          <FormControl type="text" placeholder="XXXXXXXXXX" value={this.state.number} onChange={this.setNumber}/>
+          <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.number} onChange={this.setNumber}/>
         </FormGroup>{' '}
         <Button type="submit" bsStyle="info" bsSize="xsmall" disabled={this.state.searchInProgress}>{this.state.searchInProgress ? "Loading results..." : "Search"}</Button>
       </Form>

@@ -6,7 +6,7 @@ import '../css/KaiserNumberResult.css'
 import Flexbox from 'flexbox-react';
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
-import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert} from 'react-bootstrap'
+import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert, ListGroup, Panel} from 'react-bootstrap'
 
 const filter = Object.freeze({ "mo":1, "month":3, "length":4,})
 const monthDict = Object.freeze({ "None":-1, "January":1, "February":2, "March":3,"April":4,"May":5,"June":6,"July":7,"August":8,"September":9,"October":10,"November":11,"December":12,})
@@ -123,12 +123,16 @@ class KaiserNumberResult extends Component{
     var {sorted, prime, showCurrent, showPrevious, yearFilter, monthFilter, dayFilter} = this.state
 
 
+    if(this.props.loading){
+      return (<span>Loading search...</span>)
+    }
+
     result = result.map((json)=>{
       var date = new Date()
       date.setTime(json.date)
       var temp =  {
         day:date.getDate().toString().padStart(2, "0"),
-        month:date.getMonth().toString().padStart(2, "0"),
+        month:(date.getMonth() + 1).toString().padStart(2, "0"),
         year:date.getFullYear(),
         hour:date.getHours().toString().padStart(2, "0"),
         minute:date.getMinutes().toString().padStart(2, "0"),
@@ -215,8 +219,8 @@ class KaiserNumberResult extends Component{
         }
         <Row>
           <Button bsStyle="info" bsSize="small" onClick={()=>{this.setPrime(this.state.prime)}}>Sort Chronological <b>{this.state.prime == false ? "^" : "v"}</b></Button>
-          <Button pullRight bsStyle="info" bsSize="small" onClick={()=>{this.setShowCurrent(showCurrent)}}>{showCurrent ? "Hide" : "Show"} Future Appointments</Button>
-          <Button pullRight bsStyle="info" bsSize="small" onClick={()=>{this.setShowPrevious(showPrevious)}}>{showPrevious ? "Hide" : "Show"} Previous Appointments</Button>
+          <Button  bsStyle="info" bsSize="small" onClick={()=>{this.setShowCurrent(showCurrent)}}>{showCurrent ? "Hide" : "Show"} Future Appointments</Button>
+          <Button  bsStyle="info" bsSize="small" onClick={()=>{this.setShowPrevious(showPrevious)}}>{showPrevious ? "Hide" : "Show"} Previous Appointments</Button>
           <br/>
         </Row>
         <Row>
@@ -240,24 +244,22 @@ class KaiserNumberResult extends Component{
         </Row>
         <Row>
           <div style={{display:showCurrent ? "block" : "none"}}>
-            <h2>
-              Future Appointments
-            </h2>
-            <hr/>
-            <ul>
-              {presentJSX}
-            </ul>
+            <Panel bsStyle="primary">
+              <Panel.Heading><Panel.Title>Future Appointments</Panel.Title></Panel.Heading>
+              <ListGroup>
+                {presentJSX}
+              </ListGroup>
+            </Panel>
           </div>
         </Row>
         <Row>
           <div style={{display:showPrevious ? "block" : "none"}}>
-            <h2>
-              Previous Appointments
-            </h2>
-            <hr/>
-            <ul>
-              {previousJSX}
-            </ul>
+            <Panel bsStyle="info">
+              <Panel.Heading><Panel.Title>Previous Appointments</Panel.Title></Panel.Heading>
+              <ListGroup>
+                {previousJSX}
+              </ListGroup>
+            </Panel>
           </div>
         </Row>
       </Grid>

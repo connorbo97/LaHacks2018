@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import fire from '../firebase/index.js'
-import {Form, FormGroup, ControlLabel, FormControl, Button} from 'react-bootstrap'
-
+import {Form, FormGroup, ControlLabel, FormControl, Button, Label, Panel} from 'react-bootstrap'
+import validator from 'validator'
 
 class AddAppointment extends Component
 {
@@ -77,6 +77,8 @@ class AddAppointment extends Component
   {
     var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
 
+    var mustCheckHalf = parseInt(this.state.halfHour) == 30
+    var store = mustCheckHalf
     if(!snap.val())
     {
       return 0
@@ -89,50 +91,101 @@ class AddAppointment extends Component
           return chair
         }
         let temp = json[chair].timeSlots
-        let n = this.state.numIntervals
-        for(var i=this.state.hour; i < this.state.hour + Math.ceil(this.state.numIntervals/2); i++)
-        {
+        let tempNI = this.state.numIntervals
+        mustCheckHalf = store
+        for(var i=this.state.hour; tempNI > 0 && i < 24; i++){
           let j = i.toString().padStart(2,"0")
-          console.log(temp[j])
-          if (temp[j])
-          {
-            if (temp[j].a)
-            {
-              //check a
-              if(temp[j].a.taken == "-1")
-                n--
-              else
-                break
+          // console.log(temp[j])
+          if (temp[j]){
+            if(mustCheckHalf){
+              if(temp[j].b && temp[j].b.taken != '-1')
+                  break
+              tempNI--
+              if(tempNI == 0)
+                return chair
+              mustCheckHalf = false
             }
-            else
-            {
-              n--
-            }
-
-            if(n == 0)
-              return chair
-
-            if (temp[j].b)
-            {
-              //check b
-              if(temp[j].b.taken == "-1")
-                n--
-              else
-                break
-            }
-            else
-            {
-              n--
+            else if(tempNI == 1){
+              if (store){
+                if(temp[j].a){
+                  if(temp[j].a.taken == '-1')
+                    return chair
+                  else
+                    break
+                } else {
+                  return chair
+                }
+              } else {
+                if(temp[j].a && temp[j].a.taken == '-1')
+                  return chair
+                else if(temp[j].b && temp[j].b.taken == '-1')
+                  return chair
+                else
+                  break
+              }
+            } else {
+              if(tempNI != this.state.numIntervals){
+                if(temp[j]){
+                  if(temp[j].a)
+                    if(temp[j].b)
+                      if(temp[j].a.taken == '-1' && temp[j].b.taken == '-1')
+                        tempNI-=2
+                      else
+                        break 
+                    else
+                      if(temp[j].a.taken == '-1')
+                        tempNI-=2
+                      else
+                        break
+                  else if(temp[j].b)
+                    if(temp[j].b.taken == '-1')
+                      tempNI-=2
+                    else
+                      break
+                } else {
+                  tempNI-=2
+                }
+              } else {
+                if(temp[j]){
+                  if(temp[j].a)
+                    if(temp[j].b)
+                      if(temp[j].b.taken == '-1')
+                        if(temp[j].a.taken == '-1')
+                          tempNI-=2
+                        else
+                          tempNI-=2
+                      else 
+                        break 
+                    else
+                      if(temp[j].a.taken == '-1')
+                        tempNI-=2
+                      else
+                        break
+                  else if(temp[j].b)
+                    if(temp[j].b.taken == '-1')
+                      tempNI-=2
+                    else
+                      break
+                } else {
+                  tempNI-=2
+                }
+              }
             }
           }
-          else
-          {
-            n -= 2
+          else{
+            if(mustCheckHalf){
+              mustCheckHalf = false
+              tempNI -=1
+            }
+            else
+              tempNI -= 2
           }
-
-          if (n == 0)
-            return chair
         }
+        if(tempNI < 0)
+          console.log("ERROR: checked too many intervals")
+
+        if (tempNI == 0)
+          return chair
     }
     return -1
   }
@@ -140,7 +193,7 @@ class AddAppointment extends Component
   async addToDatabase(chairAvail)
   {
 
-    var {day, month, year, hour, halfHour, numIntervals, kaiserNumber, durationHour,durationMinutes} = this.state
+    var {day, month, year, hour, halfHour, numIntervals, kaiserNumber} = this.state
     //check if the date is already taken
     var date = new Date()
     date.setDate(parseInt(day))
@@ -149,8 +202,7 @@ class AddAppointment extends Component
     date.setHours(parseInt(hour))
     date.setMinutes(parseInt(halfHour))
     let json = {}
-    console.log(date)
-    console.log(this.state)
+    console.log(chairAvail)
     json[date.getTime()] = {chair:chairAvail,numIntervals:numIntervals}
 
     //ADD TO PATIENTS
@@ -159,32 +211,49 @@ class AddAppointment extends Component
 
 
     //ADD TO DATES
+    let mustCheckHalf = parseInt(halfHour) == 30
+
     let i =0;
     while(numIntervals > 0){
       let tempJSON = {}
       if(numIntervals >= 2){
-        tempJSON = {
-          a:{
-            taken:kaiserNumber
-          },
-          b: {
-            taken:kaiserNumber
+        if(mustCheckHalf){
+          tempJSON = {
+            b: {
+              taken:kaiserNumber
+            }
           }
+          mustCheckHalf = false
+          numIntervals -= 1
+        } else {
+          tempJSON = {
+            a:{
+              taken:kaiserNumber
+            },
+            b: {
+              taken:kaiserNumber
+            }
+          }
+          numIntervals -= 2
         }
-        numIntervals -= 2
       } else {
-        tempJSON = {
-          a:{
-            taken:kaiserNumber
-          },
-          b:{
-            taken:-1
+        if(mustCheckHalf){
+          tempJSON = {
+            b: {
+              taken:kaiserNumber
+            }
           }
-
+          mustCheckHalf = false
+        } else {
+          tempJSON = {
+            a:{
+              taken:kaiserNumber
+            },
+          }
         }
         numIntervals -= 1
       }
-
+      console.log(tempJSON)
       let temp = parseInt(hour) + i
       await fire.database.ref(`/dates/${year}/${month}/${day}/chairs/${chairAvail}/timeSlots/${temp.toString().padStart(2,"0")}`).update(tempJSON)
       i++
@@ -195,18 +264,63 @@ class AddAppointment extends Component
 
   async onClicked()
   {
-    var {day, month, year, hour, halfHour, numIntervals} = this.state
+    var {day, month, year, hour, halfHour, numIntervals, kaiserNumber} = this.state
+
+    if (!validator.isNumeric(kaiserNumber.toString()))
+    {
+      alert("Error: Kaiser Number must contain only digits.")
+      return
+    }
+    if (kaiserNumber.toString().length != 10 || parseInt(kaiserNumber.toString()) < 0)
+    {
+      alert("Error: Kaiser Number must contain 10 digits.")
+      return
+    }
+
+
+
+    if ( !validator.isNumeric(month.toString())   ||  !validator.isNumeric(year.toString()) ||  !validator.isNumeric(day.toString()) ||  parseInt(month.toString()) < 0 || parseInt(year.toString()) < 0 || parseInt(day.toString()) < 0)
+    {
+      alert("Error: Month, Day, and Year must only contain digits.")
+      return
+    }
+
+
+    if (month.toString().length != 2   ||    day.toString().length != 2     ||    year.toString().length != 4)
+    {
+      alert("Error: Date must be in the form MM/DD/YYYY.")
+      return
+    }
+
+
+    if (!validator.isNumeric(hour.toString())   ||   !validator.isNumeric(halfHour.toString()) )
+    {
+      alert("Error: Start time must contain only digits.")
+      return
+    }
+
+
+    if (hour.toString().length != 2   ||    halfHour.toString().length != 2)
+    {
+      alert("Error: Start time must be in the form XX:XX.")
+      return
+    }
+
+    if(parseInt(halfHour) != 0 && parseInt(halfHour) != 30){
+      alert("Error: Appointments must start on an hour or half hour. Minutes must be 00 or 30")
+      return
+    }
+
     //check if the date is already taken
     var chairAvail = await this.isAvailable(this.state)
-    console.log(chairAvail)
     if (chairAvail == -1)
     {
       alert("Error: No time available")
       return
     }
-    console.log(chairAvail)
-    this.addToDatabase(chairAvail)
-    this.props.setErrorMsg("Caution: Current search may be out of date. Search again to grab most recent data.")
+    await this.addToDatabase(chairAvail)
+    this.props.redoSearch()
+    // this.props.setErrorMsg("Caution: Current search may be out of date. Search again to grab most recent data.")
 
 
     //add it to the dates branch
@@ -218,13 +332,13 @@ class AddAppointment extends Component
     for(var i=4; i <= 9 * 2; i++){
       durationOptions.push(<option key={i} value={i}>{Math.floor(i/2)}&nbsp;hours&nbsp;{i%2==1 ? "30 minutes" : ""}</option>)
     }
-    console.log(this.state.numIntervals)
     return (
        <Form inline onSubmit={(event)=>{
         event.preventDefault()
         this.onClicked()
        }}>
-        {'Add appointment:\tKID:'}
+        <h2>Add Appointment</h2>
+        {' Kaiser Number: '}
         <FormGroup controlId="lineKN">
           <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumber} onChange={(event)=>{this.setKaiserNumber(event.target.value)}}/>
         </FormGroup>{' Date: '}
@@ -243,7 +357,7 @@ class AddAppointment extends Component
           </FormControl>
         </FormGroup>{' Start time: '}
         <FormGroup controlId="lineStartHour">
-          <FormControl type="text" placeholder="HH (00-24)" size="12" maxLength="2" value={this.state.hour} onChange={(event)=>{this.setHour(event.target.value)}}>
+          <FormControl type="text" placeholder="HH (00-23)" size="12" maxLength="2" value={this.state.hour} onChange={(event)=>{this.setHour(event.target.value)}}>
           </FormControl>
         </FormGroup>{':'}
         <FormGroup controlId="lineStartMinute">
@@ -252,6 +366,7 @@ class AddAppointment extends Component
         </FormGroup>{' '}
         <Button type="submit" bsStyle="info" bsSize="xsmall" disabled={this.state.searchInProgress}>{this.state.searchInProgress ? "Creating appointment..." : "Create Appointment"}</Button>
       </Form>
+
     );
   }
 }
