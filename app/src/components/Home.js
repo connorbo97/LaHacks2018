@@ -83,16 +83,10 @@ class Home extends Component{
       <div>
     	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
-<<<<<<< HEAD
-	      <SearchByDate setDateResult={this.setDateResult}/>
-	      <Result results={this.state.results} type={this.state.type}/>
-=======
 	      <SearchByDate/>
         <AddAppointment />
         <hr/>
 	      <Result result={this.state.result} type={this.state.type}/>
->>>>>>> 2d10370025c7f78cda4a1002180cfb5143cf3592
-
       </div>
     );
   }
