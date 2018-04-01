@@ -61,8 +61,7 @@ class App extends Component{
     return(
       <Router>
         <div>
-          <Navigation/>
-          <hr/>
+        <Navigation/>
           <Route
             exact path={routes.LANDING}
             component={() => (this.state.uid ? (<Redirect to={routes.HOME}/>) : (<div>Welcome!<SignIn /></div>))}

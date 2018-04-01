@@ -21,7 +21,7 @@ class DateResult extends Component{
       if(i % 2 == 1){
         content=Math.floor(i/2)
       }
-      base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:"green", fontSize:"16px"}}>{content}</span>)
+      base.push(<span key={i} style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:"green", fontSize:"16px"}}>{content}</span>)
     }
 
   	result.forEach((chair, index)=>{

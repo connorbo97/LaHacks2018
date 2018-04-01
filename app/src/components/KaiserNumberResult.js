@@ -6,6 +6,7 @@ import '../css/KaiserNumberResult.css'
 import Flexbox from 'flexbox-react';
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
+import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert} from 'react-bootstrap'
 
 const filter = Object.freeze({ "mo":1, "month":3, "length":4,})
 const monthDict = Object.freeze({ "None":-1, "January":1, "February":2, "March":3,"April":4,"May":5,"June":6,"July":7,"August":8,"September":9,"October":10,"November":11,"December":12,})
@@ -121,6 +122,7 @@ class KaiserNumberResult extends Component{
     var {result} = this.props
     var {sorted, prime, showCurrent, showPrevious, yearFilter, monthFilter, dayFilter} = this.state
 
+
     result = result.map((json)=>{
       var date = new Date()
       date.setTime(json.date)
@@ -139,9 +141,6 @@ class KaiserNumberResult extends Component{
       return(temp)
     })
 
-    console.log(yearFilter)
-    console.log(monthFilter)
-    console.log(dayFilter)
     monthFilter = monthDict[monthFilter]
     if(yearFilter.length == 4){
       if(monthFilter != -1){
@@ -201,40 +200,67 @@ class KaiserNumberResult extends Component{
     let filterMonthOptions = []
 
     for(let month in monthDict){
-      filterMonthOptions.push({value:monthDict[month], label:month})
+      filterMonthOptions.push(<option key={month} value={month}>{month}</option>)
     }
-    console.log(filterMonthOptions)
     //   var backColor = sorted == filter[prop] ? "grey" : "white"
     //   var style = {backgroundColor:backColor, width:"100%", textAlign:"center"}
     //   console.log(backColor, sorted, filter[prop])
     //   filterJSX.push(<span style={{backgroundColor:backColor, width:"100%", textAlign:"center", border:"#EEEEEE 2px solid"}} key={prop} onClick={()=>{this.handleFilterClick(filter[prop])}}>{sorted == filter[prop] ? (prime ? 'v' : '^') : ' '} {prop}</span>)
     // }
     return (
-      <div>
-        <span style={{border:"#BBBBBB 6px solid", padding:"2px", fontSize:"15px", textAlign:"center"}} onClick={()=>{this.setPrime(this.state.prime)}}><b>Sort Chronological {this.state.prime == false ? "^" : "v"}</b>:</span>
-        <br/>
-        Filter by month:<Dropdown options={filterMonthOptions} onChange={this.handleChangeMonth} value={this.state.monthFilter}/>
-        Filter by year: <input type="text" placeholder="YYYY" size="4" maxLength="4" value={this.state.yearFilter} onChange={(event)=>{this.setYearFilter(event.target.value)}}/>
-        Filter by day: <input type="text" placeholder="DD" size="2" maxLength="2" value={this.state.dayFilter} onChange={(event)=>{this.setDayFilter(event.target.value)}}/>
-        <button onClick={this.resetFilters}>Reset Filters</button>
-        <Flexbox flexDirection="row" justifyContent="space-around">
-        </Flexbox>
-        <br/>
-        <button onClick={()=>{this.setShowCurrent(showCurrent)}}>{showCurrent ? "Hide" : "Show"} Future Appointments</button>
-        <div style={{display:showCurrent ? "block" : "none"}}>
-          Future Appointments
-          <ul>
-            {presentJSX}
-          </ul>
-        </div>
-        <button onClick={()=>{this.setShowPrevious(showPrevious)}}>{showPrevious ? "Hide" : "Show"} Previous Appointments</button>
-        <div style={{display:showPrevious ? "block" : "none"}}>
-          Previous Appointments
-          <ul>
-            {previousJSX}
-          </ul>
-        </div>
-      </div>
+      <Grid>
+        {this.props.errorMsg.length > 0 ? (<Alert bsStyle="warning">
+            {this.props.errorMsg}
+          </Alert>) : (<span/>)
+        }
+        <Row>
+          <Button bsStyle="info" bsSize="small" onClick={()=>{this.setPrime(this.state.prime)}}>Sort Chronological <b>{this.state.prime == false ? "^" : "v"}</b></Button>
+          <Button pullRight bsStyle="info" bsSize="small" onClick={()=>{this.setShowCurrent(showCurrent)}}>{showCurrent ? "Hide" : "Show"} Future Appointments</Button>
+          <Button pullRight bsStyle="info" bsSize="small" onClick={()=>{this.setShowPrevious(showPrevious)}}>{showPrevious ? "Hide" : "Show"} Previous Appointments</Button>
+          <br/>
+        </Row>
+        <Row>
+          <Form inline>
+            {'Filter by month:'}
+            <FormGroup controlId="knDuration">
+              <FormControl componentClass="select" placeholder="Select month to filter by..."  onChange={(event)=>{console.log(event.target.value);this.setMonthFilter(event.target.value)}}>
+                {filterMonthOptions}
+              </FormControl>
+            </FormGroup>{' Filter by day: '}
+            <FormGroup controlId="knDay">
+              <FormControl type="text" placeholder="DD" size="3" maxLength="2" value={this.state.dayFilter} onChange={(event)=>{this.setDayFilter(event.target.value)}}/>
+            </FormGroup>{' Filter by year: '}
+            <FormGroup controlId="knYear">
+              <FormControl type="text" placeholder="YYYY" size="5" maxLength="4" value={this.state.yearFilter} onChange={(event)=>{this.setYearFilter(event.target.value)}}/>
+            </FormGroup>
+            <Button bsStyle="danger" onClick={this.resetFilters} bsSize="small" disabled={monthFilter==-1 && dayFilter == "" && yearFilter == ""}>Reset Filters</Button>
+          </Form>
+        </Row>
+        <Row>
+        </Row>
+        <Row>
+          <div style={{display:showCurrent ? "block" : "none"}}>
+            <h2>
+              Future Appointments
+            </h2>
+            <hr/>
+            <ul>
+              {presentJSX}
+            </ul>
+          </div>
+        </Row>
+        <Row>
+          <div style={{display:showPrevious ? "block" : "none"}}>
+            <h2>
+              Previous Appointments
+            </h2>
+            <hr/>
+            <ul>
+              {previousJSX}
+            </ul>
+          </div>
+        </Row>
+      </Grid>
     );
   }
 }

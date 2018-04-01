@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import fire from '../firebase/index.js'
+import {Form, FormGroup, ControlLabel, FormControl, Button} from 'react-bootstrap'
+
 
 class AddAppointment extends Component
 {
@@ -15,9 +17,7 @@ class AddAppointment extends Component
       year:"",
       hour:"",
       halfHour:"",
-      numIntervals:-1,
-      durationHour:"",
-      durationMinutes: "",
+      numIntervals:1,
 
     }
 
@@ -31,6 +31,7 @@ class AddAppointment extends Component
     this.setHour = this.setHour.bind(this)
     this.setHalfHour = this.setHalfHour.bind(this)
     this.setDurationHour = this.setDurationHour.bind(this)
+    this.setNumIntervals = this.setNumIntervals.bind(this)
     this.setDurationMinutes = this.setDurationMinutes.bind(this)
 
 
@@ -62,6 +63,10 @@ class AddAppointment extends Component
 
   setDurationHour(durationHour){
     this.setState({durationHour})
+  }
+
+  setNumIntervals(numIntervals){
+    this.setState({numIntervals})
   }
 
   setDurationMinutes(durationMinutes){
@@ -137,11 +142,9 @@ class AddAppointment extends Component
 
     var {day, month, year, hour, halfHour, numIntervals, kaiserNumber, durationHour,durationMinutes} = this.state
     //check if the date is already taken
-    numIntervals = durationHour*2 + Math.ceil(durationMinutes/30)
-    this.setState({numIntervals})
     var date = new Date()
     date.setDate(parseInt(day))
-    date.setMonth(parseInt(month))
+    date.setMonth(parseInt(month)-1)
     date.setYear(parseInt(year))
     date.setHours(parseInt(hour))
     date.setMinutes(parseInt(halfHour))
@@ -203,29 +206,52 @@ class AddAppointment extends Component
     }
     console.log(chairAvail)
     this.addToDatabase(chairAvail)
+    this.props.setErrorMsg("Caution: Current search may be out of date. Search again to grab most recent data.")
 
 
     //add it to the dates branch
   }
 
   render() {
+    let durationOptions = [ (<option key={0} value={1}>30 minutes</option>), (<option key={1} value={2}>1 hour</option>), (<option key={2} value={3}>1 hour 30 minutes</option>)]
+
+    for(var i=4; i <= 9 * 2; i++){
+      durationOptions.push(<option key={i} value={i}>{Math.floor(i/2)}&nbsp;hours&nbsp;{i%2==1 ? "30 minutes" : ""}</option>)
+    }
+    console.log(this.state.numIntervals)
     return (
-      <div>
-          <hr/>
-        	Add appointment <br/>
-          Kaiser Number<input type="text" placeholder="XXXXXXXXXX" value={this.state.kaiserNumber} onChange={(event)=>{this.setKaiserNumber(event.target.value)}}/> <br/>
-          Date<input type="text" placeholder="MM" size="2" maxLength="2" value={this.state.month} onChange={(event)=>{this.setMonth(event.target.value)}}/>/
-          <input type="text" placeholder="DD" size="2" maxLength="2" value={this.state.day} onChange={(event)=>{this.setDay(event.target.value)}}/>/
-          <input type="text" placeholder="YYYY" size="4" maxLength="4" value={this.state.year} onChange={(event)=>{this.setYear(event.target.value)}}/> <br/>
-          Start Time<input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.hour} onChange={(event)=>{this.setHour(event.target.value)}}/>:
-          <input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.halfHour} onChange={(event)=>{this.setHalfHour(event.target.value)}}/><br/>
-          Length of Appointment<input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.durationHour} onChange={(event)=>{this.setDurationHour(event.target.value)}}/>:
-          <input type="text" placeholder="XX" size="2" maxLength="2" value={this.state.durationMinutes} onChange={(event)=>{this.setDurationMinutes(event.target.value)}}/>
-          <button onClick={this.onClicked}>
-            Add Appointment
-          </button>
-          <br/>
-         </div>
+       <Form inline onSubmit={(event)=>{
+        event.preventDefault()
+        this.onClicked()
+       }}>
+        {'Add appointment:\tKID:'}
+        <FormGroup controlId="lineKN">
+          <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumber} onChange={(event)=>{this.setKaiserNumber(event.target.value)}}/>
+        </FormGroup>{' Date: '}
+        <FormGroup controlId="lineMonth">
+          <FormControl type="text" placeholder="MM" size="3" maxLength="2" value={this.state.month} onChange={(event)=>{this.setMonth(event.target.value)}}/>
+        </FormGroup>{'/'}
+        <FormGroup controlId="lineDay">
+          <FormControl type="text" placeholder="DD" size="3" maxLength="2" value={this.state.day} onChange={(event)=>{this.setDay(event.target.value)}}/>
+        </FormGroup>{'/'}
+        <FormGroup controlId="lineYear">
+          <FormControl type="text" placeholder="YYYY" size="5" maxLength="4" value={this.state.year} onChange={(event)=>{this.setYear(event.target.value)}}/>
+        </FormGroup>{' '}
+        <FormGroup controlId="lineDuration">
+          <FormControl componentClass="select" placeholder="Select appointment duration" onChange={(event)=>{this.setNumIntervals(event.target.value)}}>
+            {durationOptions}
+          </FormControl>
+        </FormGroup>{' Start time: '}
+        <FormGroup controlId="lineStartHour">
+          <FormControl type="text" placeholder="HH (00-24)" size="12" maxLength="2" value={this.state.hour} onChange={(event)=>{this.setHour(event.target.value)}}>
+          </FormControl>
+        </FormGroup>{':'}
+        <FormGroup controlId="lineStartMinute">
+          <FormControl type="text" placeholder="MM (00 or 30)" size="12" maxLength="2" value={this.state.halfHour} onChange={(event)=>{this.setHalfHour(event.target.value)}}>
+          </FormControl>
+        </FormGroup>{' '}
+        <Button type="submit" bsStyle="info" bsSize="xsmall" disabled={this.state.searchInProgress}>{this.state.searchInProgress ? "Creating appointment..." : "Create Appointment"}</Button>
+      </Form>
     );
   }
 }

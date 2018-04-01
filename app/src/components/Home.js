@@ -8,7 +8,7 @@ import SignOut from './SignOut.js'
 import Result from './Result.js'
 import AddAppointment from './AddAppointment.js'
 import fire from '../firebase/index.js'
-
+import {Grid, Row, Col} from 'react-bootstrap'
 class Home extends Component{
 
   constructor(props) {
@@ -19,14 +19,20 @@ class Home extends Component{
         month:"",
         day:"",
         year:"",
+        errorMsg:"",
     	}
     this.setResult = this.setResult.bind(this)
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
     this.setDateResult = this.setDateResult.bind(this)
+    this.setErrorMsg = this.setErrorMsg.bind(this)
   }
 
   setResult(result){
   	this.setState({result})
+  }
+
+  setErrorMsg(errorMsg){
+    this.setState({errorMsg})
   }
 
   async setKaiserNumberResult(kaiserNumber){
@@ -88,14 +94,28 @@ class Home extends Component{
   render() {
     console.log("arr:")
   	console.log(this.state.result)
+    var temp = new Date()
+    temp.setDate(30)
+    temp.setMonth(1)
+    temp.setYear(2018)
+    console.log(temp.getDate())
+    console.log(temp.toString())
     return (
       <div>
-    	  <SignOut/>
-	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
-	      <SearchByDate setDateResult={this.setDateResult} />
-        <AddAppointment />
+        <Grid bsClass="container">
+          <Row>
+            <Col md={10} ld={10} style={{width:"50%", borderRight:"#EEEEEE 2px solid"}}>
+             <SearchByKaiserNumber setErrorMsg={this.setErrorMsg} setKaiserNumberResult={this.setKaiserNumberResult}/>
+             <hr/>
+             <SearchByDate setErrorMsg={this.setErrorMsg} setDateResult={this.setDateResult} />
+            </Col>
+            <Col md={10} ld={10} style={{width:"50%"}}>
+              <AddAppointment setErrorMsg={this.setErrorMsg}/>
+            </Col>
+          </Row>
+        </Grid>
         <hr/>
-	      <Result result={this.state.result} type={this.state.type} day={this.state.day} year={this.state.year} month={this.state.month}/>
+	      <Result result={this.state.result} errorMsg={this.state.errorMsg} type={this.state.type} day={this.state.day} year={this.state.year} month={this.state.month}/>
       </div>
     );
   }

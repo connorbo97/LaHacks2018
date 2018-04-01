@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
+import {Button} from 'react-bootstrap'
 
 class SignIn extends Component{
   constructor(props) {
@@ -14,7 +15,7 @@ class SignIn extends Component{
   render() {
     return (
       <div>
-        <button onClick={this.onSignIn}>Sign In with Google</button>
+        <Button bsStyle="success" onClick={this.onSignIn}>Sign In with Google</Button>
       </div>
     );
   }
