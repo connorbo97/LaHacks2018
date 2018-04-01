@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
 import Appointment from './Appointment.js'
 import Flexbox from 'flexbox-react';
-import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert, ListGroup, Panel} from 'react-bootstrap'
+import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert, ListGroup, Panel, Collapse} from 'react-bootstrap'
 
 const appColors = ["red", "blue", "purple", "brown", "orange"]
 
@@ -21,8 +21,39 @@ class DateResult extends Component{
     this.state = {
       hideAppointmentDetails:false,
       kaiserNumberFilter:"",
+      minimizeChair: new Array(23).fill(false),
     }
 
+    this.flipMinimize = this.flipMinimize.bind(this)
+    this.minimizeAll = this.minimizeAll.bind(this)
+
+  }
+
+  flipMinimize(index){
+    this.setState(({minimizeChair})=>{
+      minimizeChair[index] = !minimizeChair[index]
+      return {minimizeChair}
+    })
+  }
+
+  minimizeAll(){
+    this.setState(({minimizeChair})=>{
+      let allFalse = true
+      for(var i=0; i < minimizeChair.length; i++){
+        if(minimizeChair[i] == true){
+          allFalse = false
+          break
+        }
+      }
+      console.log(minimizeChair)
+      if(!allFalse)
+        minimizeChair = minimizeChair.map(()=>false)
+      else
+        minimizeChair = minimizeChair.map(()=>true)
+
+      console.log(minimizeChair)
+      return {minimizeChair}
+    })
   }
 
   render() {
@@ -45,19 +76,23 @@ class DateResult extends Component{
         bgColor = "black"
       base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:bgColor, fontSize:"16px"}}>{content}</span>)
     }
-
+    let atLeastOneFound = false
   	result.forEach((chair, index)=>{
       if(this.state.kaiserNumberFilter.length == 10){
-        var hasPID = false
+        let hasKID = false
         for(let k=0; k < chair.length; k++){
           if(chair[k].kid == this.state.kaiserNumberFilter){
-            hasPID = true
+            hasKID = true
+            atLeastOneFound = true
             break
           }
         }
-        if(!hasPID)
+        if(!hasKID){
+          arr.push((<span/>))
           return
+        } 
       }
+
   		var appointments = []
       var copy = base.slice(1)
       chair = sortByKeys(chair, "hour", "minute")
@@ -99,6 +134,7 @@ class DateResult extends Component{
           let newContent = ""
           let slotColor = ""
           let borderColor = "black"
+          let borderWidth = "1px"
           if(!halfHour){
             newContent = parseInt(json.hour)
           }
@@ -109,17 +145,22 @@ class DateResult extends Component{
 
           slotColor = appColors[colorIndex%appColors.length]
 
-          if(this.state.kaiserNumberFilter.length == 10 && json.kid == this.state.kaiserNumberFilter)
+          if(this.state.kaiserNumberFilter.length == 10 && json.kid == this.state.kaiserNumberFilter){
             borderColor = "yellow"
+            borderWidth = "2px"
+          }
             // slotColor = "yellow"
 
-          copy[parseInt(json.hour)*2+halfHour] = (<span style={{border:`${borderColor} 1px solid`, width:"100%", height:"26px", color:"white", backgroundColor:slotColor, fontSize:"16px"}}>{newContent}</span>)
+          copy[parseInt(json.hour)*2+halfHour] = (<span style={{border:`${borderColor} ${borderWidth} solid`, width:"100%", height:"26px", color:"white", backgroundColor:slotColor, fontSize:"16px"}}>{newContent}</span>)
           
         }
 
       })
+
+      if(accumulatedApps.length == 0)
+        accumulatedApps = (<span>No appointments found for {this.state.kaiserNumberFilter}</span>)
 		  arr.push((
-        <div>
+        <div onClick={()=>{this.flipMinimize(index)}}>
           Chair #{index + 1}:
           <ul>
             <Flexbox >
@@ -128,18 +169,38 @@ class DateResult extends Component{
             <Flexbox >
               {copy}
             </Flexbox>
-             {!this.state.hideAppointmentDetails ? (
+            <div>
+             <Collapse in={this.state.minimizeChair[index]}>
                 <Panel bsStyle="primary">
                   <Panel.Heading>Appointments for Chair</Panel.Heading>
-                    <ListGroup>
-                      {appointments}
-                    </ListGroup>
-                  </Panel>) : (<span/>)
-              }
+                  <ListGroup>
+                    {appointments}
+                  </ListGroup>
+                </Panel>
+              </Collapse>
+            </div>
           </ul>
         </div>
       ))
   	})
+
+    if(this.state.kaiserNumberFilter.length == 10 && !atLeastOneFound){
+      return (
+      <div>
+        {this.props.errorMsg.length > 0 ? (<Alert bsStyle="warning">
+            {this.props.errorMsg}
+          </Alert>) : (<span/>)
+        }
+        <h2>Date: {month}/{day}/{year}</h2>
+        <Form inline>
+            {'Filter by Kaiser Number:'}
+            <FormGroup controlId="dateKN">
+              <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
+            </FormGroup>
+        </Form>
+        <span>No appointments found for {this.state.kaiserNumberFilter} on {month}/{day}/{year}. Clear the filter to get the original results.</span>
+      </div>)
+    }
 
     return (
       <div>
@@ -154,7 +215,7 @@ class DateResult extends Component{
               <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
             </FormGroup>
         </Form>
-        <Button onClick={()=>{this.setState({hideAppointmentDetails:!this.state.hideAppointmentDetails})}}>Hide Appointment Information</Button>
+        <Button onClick={this.minimizeAll}>Toggle All Chairs</Button>
         {arr}
       </div>
     );

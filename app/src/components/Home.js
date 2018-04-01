@@ -31,6 +31,7 @@ class Home extends Component{
     this.setErrorMsg = this.setErrorMsg.bind(this)
     this.setLoading = this.setLoading.bind(this)
     this.setKaiserID = this.setKaiserID.bind(this)
+    this.redoSearch = this.redoSearch.bind(this)
   }
 
   setResult(result){
@@ -129,9 +130,14 @@ class Home extends Component{
     this.setState({month,day,year})
   }
 
+  redoSearch(){
+    if(this.state.type == "KN")
+      this.setKaiserNumberResult(this.state.kaiserID)
+    else if(this.state.type == "D")
+      this.setDateResult({month:this.state.month, year:this.state.year, day:this.state.day})
+  }
+  
   render() {
-    console.log("arr:")
-  	console.log(this.state.result)
     return (
       <div>
         <Grid bsClass="container">
@@ -142,17 +148,12 @@ class Home extends Component{
              <SearchByDate setErrorMsg={this.setErrorMsg} setDateResult={this.setDateResult} />
             </Col>
             <Col md={10} ld={10} style={{width:"50%"}}>
-              <AddAppointment setErrorMsg={this.setErrorMsg} redoSearch={()=>{
-                if(this.state.type == "KN")
-                  this.setKaiserNumberResult(this.state.kaiserID)
-                else if(this.state.type == "D")
-                  this.setDateResult({month:this.state.month, year:this.state.year, day:this.state.day})
-              }}/>
+              <AddAppointment setErrorMsg={this.setErrorMsg} redoSearch={this.redoSearch}/>
             </Col>
           </Row>
         </Grid>
         <hr/>
-	      <Result loading={this.state.loading} result={this.state.result} errorMsg={this.state.errorMsg} type={this.state.type} day={this.state.day} year={this.state.year} month={this.state.month}/>
+	      <Result redoSearch={this.redoSearch} loading={this.state.loading} result={this.state.result} errorMsg={this.state.errorMsg} type={this.state.type} kaiserNumber={this.state.kaiserID} day={this.state.day} year={this.state.year} month={this.state.month}/>
       </div>
     );
   }

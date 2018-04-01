@@ -6,7 +6,7 @@ import '../css/KaiserNumberResult.css'
 import Flexbox from 'flexbox-react';
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
-import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert, ListGroup, Panel} from 'react-bootstrap'
+import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert, ListGroup, Panel, Collapse} from 'react-bootstrap'
 
 const filter = Object.freeze({ "mo":1, "month":3, "length":4,})
 const monthDict = Object.freeze({ "None":-1, "January":1, "February":2, "March":3,"April":4,"May":5,"June":6,"July":7,"August":8,"September":9,"October":10,"November":11,"December":12,})
@@ -49,7 +49,7 @@ class KaiserNumberResult extends Component{
       yearFilter:"",
       dayFilter:"",
       prime:true,
-      showPrevious:false,
+      showPrevious:true,
       showCurrent:true,
     }
     this.setSorted = this.setSorted.bind(this)
@@ -197,9 +197,9 @@ class KaiserNumberResult extends Component{
 
     result.forEach((json)=>{
       if(json.date >= Date.now())
-        presentJSX.push(<Appointment key={json.date} {...json}/>)
+        presentJSX.push(<Appointment redoSearch={this.props.redoSearch} key={json.date} kaiserNumber={this.props.kaiserNumber} {...json}/>)
       else
-        previousJSX.push(<Appointment key={json.date} {...json}/>)
+        previousJSX.push(<Appointment redoSearch={this.props.redoSearch} key={json.date} kaiserNumber={this.props.kaiserNumber} {...json}/>)
     })
     let filterMonthOptions = []
 
@@ -243,23 +243,27 @@ class KaiserNumberResult extends Component{
         <Row>
         </Row>
         <Row>
-          <div style={{display:showCurrent ? "block" : "none"}}>
-            <Panel bsStyle="primary">
-              <Panel.Heading><Panel.Title>Future Appointments</Panel.Title></Panel.Heading>
-              <ListGroup>
-                {presentJSX}
-              </ListGroup>
-            </Panel>
+          <div>
+              <Panel bsStyle="primary">
+                <Panel.Heading><Panel.Title>Future Appointments</Panel.Title></Panel.Heading>
+                <Collapse in={showCurrent}>
+                  <ListGroup>
+                    {presentJSX}
+                  </ListGroup>
+                </Collapse>
+              </Panel>
           </div>
         </Row>
         <Row>
-          <div style={{display:showPrevious ? "block" : "none"}}>
-            <Panel bsStyle="info">
-              <Panel.Heading><Panel.Title>Previous Appointments</Panel.Title></Panel.Heading>
-              <ListGroup>
-                {previousJSX}
-              </ListGroup>
-            </Panel>
+          <div>
+              <Panel bsStyle="info">
+                <Panel.Heading><Panel.Title>Previous Appointments</Panel.Title></Panel.Heading>
+                <Collapse in={showPrevious}>
+                  <ListGroup>
+                    {previousJSX}
+                  </ListGroup>
+               </Collapse>
+              </Panel>
           </div>
         </Row>
       </Grid>

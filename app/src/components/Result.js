@@ -11,7 +11,7 @@ class Result extends Component{
 
   render() {
     if(this.props.type == "KN"){
-      return (<KaiserNumberResult loading={this.props.loading} errorMsg={this.props.errorMsg} result={this.props.result}/>)
+      return (<KaiserNumberResult redoSearch={this.props.redoSearch} kaiserNumber={this.props.kaiserNumber} loading={this.props.loading} errorMsg={this.props.errorMsg} result={this.props.result}/>)
     } else if(this.props.type == "D"){
       return (<DateResult loading={this.props.loading} errorMsg={this.props.errorMsg} result={this.props.result} day={this.props.day} year={this.props.year} month={this.props.month}/>);
     } else {
