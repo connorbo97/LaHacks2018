@@ -18,6 +18,7 @@ class Home extends Component{
     	}
     this.setResult = this.setResult.bind(this)
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
+    this.setDateResult = this.setDateResult.bind(this)
   }
 
   setResult(result){
@@ -25,7 +26,7 @@ class Home extends Component{
   }
 
   async setKaiserNumberResult(kaiserNumber){
-  	
+
     var snap = await fire.database.ref(`/patients/${kaiserNumber}/appointments`).once('value')
     if(!snap.val()){
       alert("Error: ref not found")
@@ -37,17 +38,45 @@ class Home extends Component{
   		arr.push({date:prop, chair:json[prop].chair, numIntervals:json[prop].numIntervals})
   	}
   	this.setResult(arr)
-  }	
+  }
+
+  async setDateResult(state){
+
+    var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
+    if(!snap.val()){
+      alert("Error: ref not found")
+      return
+    }
+    var json = snap.val()
+    var arr =[]
+    var i = 0
+    for(;i < 23;){
+      arr.push([])
+      i++
+    }
+    for(var chair in json){
+      for(var hour in json[chair].timeSlots){
+        var temp = json[chair].timeSlots[hour]
+          for(var halfHour in temp){
+            if(temp[halfHour].taken != "-1"){
+              var j = parseInt(chair)
+              var jsonres = temp[halfHour] == "a" ? {day:state.day, month:state.month, year: state.year, hour:hour, minute:"00"} : {day:state.day, month:state.month, year: state.year, hour:hour, minute:"30"}
+              arr[j].push(jsonres)
+            }
+          }
+      }
+    }
+    this.setResult(arr)
+  }
 
   render() {
+    console.log("arr:")
   	console.log(this.state.result)
     return (
       <div>
     	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
-      	<SignOut/>
-	      <SearchByKaiserNumber setResult={this.setResult}/>
-	      <SearchByDate/>
+	      <SearchByDate setDateResult={this.setDateResult}/>
 	      <Result results={this.state.results} type={this.state.type}/>
 
       </div>
