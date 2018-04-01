@@ -11,7 +11,7 @@ class Appointment extends Component{
     var json = this.props
     return (
       <li>
-        <b>Date:</b>&nbsp;{json.month}/{json.day}/{json.year} <b>Chair:</b>&nbsp;{json.chair} <b>Duration:</b>{json.durationHour > 0 ? (<span>&nbsp;{json.durationHour} hours</span>) : (<span/>)} {json.durationMinute > 0 ? (<span>{json.durationMinute} minutes </span>) : (<span/>)}
+        <b>Date:</b>&nbsp;{json.month}/{json.day}/{json.year} {json.hour}:{json.minute}&nbsp; <b>Chair:</b>&nbsp;{json.chair} <b>Duration:</b>{json.durationHour > 0 ? (<span>&nbsp;{json.durationHour} hours</span>) : (<span/>)} {json.durationMinute > 0 ? (<span>{json.durationMinute} minutes </span>) : (<span/>)}
       </li>
     );
   }

@@ -83,7 +83,7 @@ class Home extends Component{
       <div>
     	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
-	      <SearchByDate/>
+	      <SearchByDate setDateResult={this.setDateResult}/>
         <AddAppointment />
         <hr/>
 	      <Result result={this.state.result} type={this.state.type}/>
