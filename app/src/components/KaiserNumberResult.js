@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
 import Appointment from './Appointment.js'
-import './KaiserNumberResult.css'
+import '../css/KaiserNumberResult.css'
 import Flexbox from 'flexbox-react';
 
-const filter = Object.freeze({"none":1, "day":2, "month":3, "length":4, })
+const filter = Object.freeze({ "chronological":1, "month":3, "length":4,})
 
 function sortByKey(array, key) {
     return array.sort(function(a, b) {
@@ -14,10 +14,26 @@ function sortByKey(array, key) {
     });
 }
 
+
+function sortByDate(array) {
+    return array.sort(function(a, b) {
+      var x = a.date; var y = b.date;
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}
+
 function sortByKeyDescending(array, key) {
     return array.sort(function(a, b) {
-        var x = a[key]; var y = b[key];
-        return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+      var x = a[key]; var y = b[key];
+      return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+    });
+}
+
+
+function sortByDateDescending(array) {
+    return array.sort(function(a, b) {
+      var x = a.date; var y = b.date;
+      return ((x > y) ? -1 : ((x < y) ? 1 : 0));
     });
 }
 
@@ -25,11 +41,16 @@ class KaiserNumberResult extends Component{
   constructor(props) {
     super(props);
     this.state={
-      sorted:filter.none,
+      sorted:filter.chronological,
       prime:false,
+      showPrevious:true,
+      showCurrent:true,
     }
     this.setSorted = this.setSorted.bind(this)
     this.setPrime = this.setPrime.bind(this)
+    this.handleFilterClick = this.handleFilterClick.bind(this)
+    this.setShowPrevious = this.setShowPrevious.bind(this)
+    this.setShowCurrent = this.setShowCurrent.bind(this)
   }
 
   setSorted(sorted){
@@ -39,6 +60,15 @@ class KaiserNumberResult extends Component{
   setPrime(prime){
     this.setState({prime:!prime})
   }
+
+  setShowPrevious(showPrevious){
+    this.setState({showPrevious:!showPrevious})
+  }
+
+  setShowCurrent(showCurrent){
+    this.setState({showCurrent:!showCurrent})
+  }
+
 
   handleFilterClick(sorted){
     // console.log(sorted)
@@ -69,17 +99,17 @@ class KaiserNumberResult extends Component{
         durationMinute:json.numIntervals*30%60,
         numIntervals:json.numIntervals,
         chair:json.chair,
-        date:json.date
+        date:json.date,
       }
       return(temp)
     })
 
     switch(sorted){
-      case filter.day:
+      case filter.chronological:
         if(prime)
-          result = sortByKey(result, "day")
+          result = sortByDate(result)
         else
-          result = sortByKeyDescending(result, "day")
+          result = sortByDateDescending(result)
         break
       case filter.month:
         if(prime)

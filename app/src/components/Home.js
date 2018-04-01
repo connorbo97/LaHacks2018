@@ -16,6 +16,9 @@ class Home extends Component{
     this.state={
 	    	result:[],
 	    	type:"NONE",
+        month:"",
+        day:"",
+        year:"",
     	}
     this.setResult = this.setResult.bind(this)
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
@@ -44,7 +47,7 @@ class Home extends Component{
   }
 
   async setDateResult(state){
-
+    var {month, day, year} = state
     var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
     if(!snap.val()){
       alert("Error: ref not found")
@@ -63,17 +66,23 @@ class Home extends Component{
           for(var halfHour in temp){
             if(temp[halfHour].taken != "-1"){
               var j = parseInt(chair)
-              var jsonres = temp[halfHour] == "a" ? {day:state.day, month:state.month, year: state.year, hour:hour, minute:"00"} : {day:state.day, month:state.month, year: state.year, hour:hour, minute:"30"}
+              var jsonres = halfHour == "a" ? {hour:hour, minute:"00", kid:temp[halfHour].taken} : {hour:hour, minute:"30", kid:temp[halfHour].taken}
               arr[j].push(jsonres)
             }
           }
       }
     }
     this.setResult(arr)
+    this.setTime(month,day,year)
+    this.setType("D")
   }
 
   setType(type){
     this.setState({type})
+  }
+
+  setTime(month,day,year){
+    this.setState({month,day,year})
   }
 
   render() {
@@ -83,10 +92,10 @@ class Home extends Component{
       <div>
     	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
-	      <SearchByDate setDateResult={this.setDateResult}/>
+	      <SearchByDate setDateResult={this.setDateResult} />
         <AddAppointment />
         <hr/>
-	      <Result result={this.state.result} type={this.state.type}/>
+	      <Result result={this.state.result} type={this.state.type} day={this.state.day} year={this.state.year} month={this.state.month}/>
       </div>
     );
   }

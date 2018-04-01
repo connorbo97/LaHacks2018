@@ -13,7 +13,7 @@ class Result extends Component{
     if(this.props.type == "KN"){
       return (<KaiserNumberResult result={this.props.result}/>)
     } else if(this.props.type == "D"){
-      return (<DateResult result={this.props.result}/>);
+      return (<DateResult result={this.props.result} day={this.props.day} year={this.props.year} month={this.props.month}/>);
     } else {
       return (<span>Use filters above to search for appointments</span>)
     }

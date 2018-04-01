@@ -6,9 +6,9 @@ class SearchByDate extends Component{
     super(props);
 
     this.state = {
-      day: "",
-      month: "",
-      year: "",
+      day: "12",
+      month: "2",
+      year: "2018",
     }
 
     this.setDay = this.setDay.bind(this)
@@ -31,7 +31,6 @@ class SearchByDate extends Component{
   }
 
   onSubmit(event){
-    console.log("penis")
     event.preventDefault()
     this.props.setDateResult(this.state)
   }
