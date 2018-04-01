@@ -19,6 +19,7 @@ class Home extends Component{
     	}
     this.setResult = this.setResult.bind(this)
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
+    this.setDateResult = this.setDateResult.bind(this)
   }
 
   setResult(result){
@@ -26,7 +27,7 @@ class Home extends Component{
   }
 
   async setKaiserNumberResult(kaiserNumber){
-  	
+
     var snap = await fire.database.ref(`/patients/${kaiserNumber}/appointments`).once('value')
 
     if(!snap.val()){
@@ -40,22 +41,57 @@ class Home extends Component{
   	}
     this.setType("KN")
   	this.setResult(arr)
-  }	
+  }
+
+  async setDateResult(state){
+
+    var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
+    if(!snap.val()){
+      alert("Error: ref not found")
+      return
+    }
+    var json = snap.val()
+    var arr =[]
+    var i = 0
+    for(;i < 23;){
+      arr.push([])
+      i++
+    }
+    for(var chair in json){
+      for(var hour in json[chair].timeSlots){
+        var temp = json[chair].timeSlots[hour]
+          for(var halfHour in temp){
+            if(temp[halfHour].taken != "-1"){
+              var j = parseInt(chair)
+              var jsonres = temp[halfHour] == "a" ? {day:state.day, month:state.month, year: state.year, hour:hour, minute:"00"} : {day:state.day, month:state.month, year: state.year, hour:hour, minute:"30"}
+              arr[j].push(jsonres)
+            }
+          }
+      }
+    }
+    this.setResult(arr)
+  }
 
   setType(type){
     this.setState({type})
   }
 
   render() {
+    console.log("arr:")
   	console.log(this.state.result)
     return (
       <div>
     	  <SignOut/>
 	      <SearchByKaiserNumber setKaiserNumberResult={this.setKaiserNumberResult}/>
+<<<<<<< HEAD
+	      <SearchByDate setDateResult={this.setDateResult}/>
+	      <Result results={this.state.results} type={this.state.type}/>
+=======
 	      <SearchByDate/>
         <AddAppointment />
         <hr/>
 	      <Result result={this.state.result} type={this.state.type}/>
+>>>>>>> 2d10370025c7f78cda4a1002180cfb5143cf3592
 
       </div>
     );
