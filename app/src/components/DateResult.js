@@ -5,7 +5,7 @@ import Appointment from './Appointment.js'
 import Flexbox from 'flexbox-react';
 import {Button, Grid, Row, Col, Form, FormGroup, ControlLabel, FormControl, PageHeader, Alert, ListGroup, Panel} from 'react-bootstrap'
 
-const appColors = ["red", "blue", "purple", "gray", "brown", "orange"]
+const appColors = ["red", "blue", "purple", "brown", "orange"]
 
 function sortByKeys(array, key, key2) {
     return array.sort(function(a, b) {
@@ -20,7 +20,9 @@ class DateResult extends Component{
     super(props);
     this.state = {
       hideAppointmentDetails:false,
+      kaiserNumberFilter:"",
     }
+
   }
 
   render() {
@@ -38,10 +40,24 @@ class DateResult extends Component{
       if(i % 2 == 1){
         content=Math.floor(i/2)
       }
-      base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:"green", fontSize:"16px"}}>{content}</span>)
+      var bgColor = "green"
+      if(i <= 16 || i > 44)
+        bgColor = "black"
+      base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:bgColor, fontSize:"16px"}}>{content}</span>)
     }
 
   	result.forEach((chair, index)=>{
+      if(this.state.kaiserNumberFilter.length == 10){
+        var hasPID = false
+        for(let k=0; k < chair.length; k++){
+          if(chair[k].kid == this.state.kaiserNumberFilter){
+            hasPID = true
+            break
+          }
+        }
+        if(!hasPID)
+          return
+      }
   		var appointments = []
       var copy = base.slice(1)
       chair = sortByKeys(chair, "hour", "minute")
@@ -54,7 +70,8 @@ class DateResult extends Component{
       while(i < chair.length){
         var top = accumulatedApps[accumulatedApps.length -1]
         var app = chair[i]
-        if(app.kid == top.kid){
+        let test1 = new Date()
+        if(app.kid == top.kid && (app.hour == top.endHour && app.minute == top.endMinute)){
           top.endMinute = ((parseInt(top.endMinute) + 30) % 60).toString().padStart(2,"0")
           top.endHour = (top.endMinute == "00" ? parseInt(top.endHour) + 1 : top.endHour).toString().padStart(2,"0")
           accumulatedApps[accumulatedApps.length -1] = top
@@ -66,6 +83,10 @@ class DateResult extends Component{
         i++
         // console.log(accumulatedApps[accumulatedApps.length -1])
       }
+
+      if(this.state.kaiserNumberFilter.length == 10){
+        accumulatedApps = accumulatedApps.filter((json)=>json.kid == this.state.kaiserNumberFilter)
+      }
       accumulatedApps.forEach((json)=>{
         if(!this.state.hideAppointmentDetails)
           appointments.push((<Appointment forDate={true} {...json}/>))
@@ -76,6 +97,8 @@ class DateResult extends Component{
         if(json.kid){
           let halfHour = json.minute == "00" ? 0 : 1
           let newContent = ""
+          let slotColor = ""
+          let borderColor = "black"
           if(!halfHour){
             newContent = parseInt(json.hour)
           }
@@ -83,7 +106,14 @@ class DateResult extends Component{
             prevIndex = json.kid
             colorIndex++
           }
-          copy[parseInt(json.hour)*2+halfHour] = (<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:appColors[colorIndex%appColors.length], fontSize:"16px"}}>{newContent}</span>)
+
+          slotColor = appColors[colorIndex%appColors.length]
+
+          if(this.state.kaiserNumberFilter.length == 10 && json.kid == this.state.kaiserNumberFilter)
+            borderColor = "yellow"
+            // slotColor = "yellow"
+
+          copy[parseInt(json.hour)*2+halfHour] = (<span style={{border:`${borderColor} 1px solid`, width:"100%", height:"26px", color:"white", backgroundColor:slotColor, fontSize:"16px"}}>{newContent}</span>)
           
         }
 
@@ -118,6 +148,12 @@ class DateResult extends Component{
           </Alert>) : (<span/>)
         }
         <h2>Date: {month}/{day}/{year}</h2>
+        <Form inline>
+            {'Filter by Kaiser Number:'}
+            <FormGroup controlId="dateKN">
+              <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
+            </FormGroup>
+        </Form>
         <Button onClick={()=>{this.setState({hideAppointmentDetails:!this.state.hideAppointmentDetails})}}>Hide Appointment Information</Button>
         {arr}
       </div>

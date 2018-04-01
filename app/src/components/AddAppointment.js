@@ -101,75 +101,34 @@ class AddAppointment extends Component
               if(temp[j].b && temp[j].b.taken != '-1')
                   break
               tempNI--
-              if(tempNI == 0)
-                return chair
               mustCheckHalf = false
             }
             else if(tempNI == 1){
-              if (store){
-                if(temp[j].a){
-                  if(temp[j].a.taken == '-1')
-                    return chair
-                  else
-                    break
-                } else {
-                  return chair
-                }
-              } else {
-                if(temp[j].a && temp[j].a.taken == '-1')
-                  return chair
-                else if(temp[j].b && temp[j].b.taken == '-1')
+              if(temp[j].a){
+                if(temp[j].a.taken == '-1')
                   return chair
                 else
                   break
+              } else {
+                return chair
               }
             } else {
-              if(tempNI != this.state.numIntervals){
-                if(temp[j]){
-                  if(temp[j].a)
-                    if(temp[j].b)
-                      if(temp[j].a.taken == '-1' && temp[j].b.taken == '-1')
-                        tempNI-=2
-                      else
-                        break 
+                if(temp[j].a)
+                  if(temp[j].b)
+                    if(temp[j].a.taken == '-1' && temp[j].b.taken == '-1')
+                      tempNI-=2
                     else
-                      if(temp[j].a.taken == '-1')
-                        tempNI-=2
-                      else
-                        break
-                  else if(temp[j].b)
-                    if(temp[j].b.taken == '-1')
+                      break 
+                  else
+                    if(temp[j].a.taken == '-1')
                       tempNI-=2
                     else
                       break
-                } else {
-                  tempNI-=2
-                }
-              } else {
-                if(temp[j]){
-                  if(temp[j].a)
-                    if(temp[j].b)
-                      if(temp[j].b.taken == '-1')
-                        if(temp[j].a.taken == '-1')
-                          tempNI-=2
-                        else
-                          tempNI-=2
-                      else 
-                        break 
-                    else
-                      if(temp[j].a.taken == '-1')
-                        tempNI-=2
-                      else
-                        break
-                  else if(temp[j].b)
-                    if(temp[j].b.taken == '-1')
-                      tempNI-=2
-                    else
-                      break
-                } else {
-                  tempNI-=2
-                }
-              }
+                else if(temp[j].b)
+                  if(temp[j].b.taken == '-1')
+                    tempNI-=2
+                  else
+                    break
             }
           }
           else{
@@ -178,7 +137,7 @@ class AddAppointment extends Component
               tempNI -=1
             }
             else
-              tempNI -= 2
+              tempNI = (tempNI >= 2) ? tempNI-2 : tempNI-1
           }
         }
         if(tempNI < 0)
