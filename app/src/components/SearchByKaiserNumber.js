@@ -7,7 +7,7 @@ class SearchByKaiserNumber extends Component{
     super(props);
 
     this.state = {
-      number:""
+      number:"1234567890"
     }
 
     this.setNumber = this.setNumber.bind(this)
