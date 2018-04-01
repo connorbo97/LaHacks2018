@@ -49,7 +49,7 @@ class SearchByDate extends Component{
         </form>
         <form onSubmit={this.onSubmit}>
           Year
-          <input type="text" placeholder="YYYY" size="2" maxLength="4" value = {this.state.year} onChange={this.setYear}/>
+          <input type="text" placeholder="YYYY" size="4" maxLength="4" value = {this.state.year} onChange={this.setYear}/>
         </form>
       </div>
     );
