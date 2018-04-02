@@ -6,10 +6,10 @@ import validator from 'validator'
 class SearchByDate extends Component{
   constructor(props) {
     super(props);
-
+    var date = new Date(Date.now())
     this.state = {
-      day: "12",
-      month: "03",
+      day: date.getDate().toString().padStart(2, "0"),
+      month: (date.getMonth() + 1).toString().padStart(2, "0"),
       year: "2018",
       searchInProgress:false,
     }
@@ -105,7 +105,7 @@ class SearchByDate extends Component{
   render() {
     console.log(this.state)
     return (
-        <Panel>
+        <Panel bsStyle="primary">
           <Panel.Heading>Search by Date</Panel.Heading>
           <Panel.Body>
             <Form inline onSubmit={this.onSubmit}>

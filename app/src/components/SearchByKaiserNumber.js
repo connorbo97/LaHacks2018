@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../firebase/index.js'
-import {Form, FormGroup, ControlLabel, FormControl, Button, Label} from 'react-bootstrap'
+import {Form, FormGroup, ControlLabel, FormControl, Button, Label, Panel} from 'react-bootstrap'
 import validator from 'validator'
 
 class SearchByKaiserNumber extends Component{
@@ -55,12 +55,16 @@ class SearchByKaiserNumber extends Component{
     return (
 
       <Form inline onSubmit={this.onSubmit}>
-        <h2><Label bsStyle="primary" style={{border:"#000 4px solid"}}>Search by Patient{'\''}s Kaiser Number</Label></h2>
+        <Panel bsStyle="primary">
+        <Panel.Heading>Search By Kaiser Number</Panel.Heading>
+        <Panel.Body>
         {' Kaiser Number: '}
-        <FormGroup controlId="inLineNumber">
-          <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.number} onChange={this.setNumber}/>
-        </FormGroup>{' '}
-        <Button type="submit" bsStyle="info" bsSize="xsmall" disabled={this.state.searchInProgress}>{this.state.searchInProgress ? "Loading results..." : "Search"}</Button>
+          <FormGroup controlId="inLineNumber">
+            <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.number} onChange={this.setNumber}/>
+          </FormGroup>{' '}
+          <Button type="submit" bsStyle="info" bsSize="xsmall" disabled={this.state.searchInProgress}>{this.state.searchInProgress ? "Loading results..." : "Search"}</Button>
+        </Panel.Body>
+        </Panel>
       </Form>
     );
   }

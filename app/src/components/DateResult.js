@@ -77,6 +77,7 @@ class DateResult extends Component{
       base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:bgColor, fontSize:"16px"}}>{content}</span>)
     }
     let atLeastOneFound = false
+    console.log(result)
   	result.forEach((chair, index)=>{
       if(this.state.kaiserNumberFilter.length == 10){
         let hasKID = false
@@ -93,8 +94,32 @@ class DateResult extends Component{
         } 
       }
 
+
+
   		var appointments = []
       var copy = base.slice(1)
+
+
+      if(chair.length == 0){
+        arr.push((
+        <div onClick={()=>{this.flipMinimize(index)}}>
+          Chair #{index + 1}:
+          <ul>
+            <Flexbox >
+              {copy}
+            </Flexbox>
+            <div>
+             <Collapse in={this.state.minimizeChair[index]}>
+                <Panel bsStyle="primary">
+                  <Panel.Heading>Appointments for Chair</Panel.Heading>
+                </Panel>
+              </Collapse>
+            </div>
+          </ul>
+        </div>))
+        return
+      }
+      
       chair = sortByKeys(chair, "hour", "minute")
       if(chair.length <= 0)
         return
