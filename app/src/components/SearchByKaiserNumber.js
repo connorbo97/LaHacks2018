@@ -38,15 +38,14 @@ class SearchByKaiserNumber extends Component{
       return
     }
 
-
-    if (this.state.number.toString().length != 10 || parseInt(this.state.number.toString()) < 0)
+    if (this.state.number.length > 0 && this.state.number[0] == "-")
     {
       this.setSearchInProgress(false)
-      alert("Error: Kaiser Number must contain 10 digits.")
+      alert("Error: Kaiser Number must contain 12 digits.")
       return
     }
 
-    this.props.setKaiserNumberResult(this.state.number)
+    this.props.setKaiserNumberResult(this.state.number.padStart(12,"0"))
     this.setSearchInProgress(false)
     this.props.setErrorMsg("")
   }
@@ -60,7 +59,7 @@ class SearchByKaiserNumber extends Component{
         <Panel.Body>
         {' Kaiser Number: '}
           <FormGroup controlId="inLineNumber">
-            <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.number} onChange={this.setNumber}/>
+            <FormControl type="text" placeholder="XXXXXXXXXXXX" size="13" maxLength="12" value={this.state.number} onChange={this.setNumber}/>
           </FormGroup>{' '}
           <Button type="submit" bsStyle="info" bsSize="xsmall" disabled={this.state.searchInProgress}>{this.state.searchInProgress ? "Loading results..." : "Search"}</Button>
         </Panel.Body>

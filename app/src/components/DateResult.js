@@ -22,6 +22,8 @@ class DateResult extends Component{
       hideAppointmentDetails:false,
       kaiserNumberFilter:"",
       minimizeChair: new Array(23).fill(false),
+      scrunch:true,
+      hideBlack:true,
     }
 
     this.flipMinimize = this.flipMinimize.bind(this)
@@ -59,6 +61,7 @@ class DateResult extends Component{
   render() {
     var {result, day, month, year} = this.props
 
+    let {scrunch, hideBlack} = this.state
     if(this.props.loading){
       return (<span>Loading search...</span>)
     }
@@ -68,18 +71,21 @@ class DateResult extends Component{
     let timeLabels = []
     for(var i=0; i < 49; i++){
       var content = ""
-      if(i % 2 == 1){
+      if(i % 2 == 1)
         content=Math.floor(i/2)
-      }
-      var bgColor = "green"
+
       if(i <= 16 || i > 44)
-        bgColor = "black"
-      base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:bgColor, fontSize:"16px"}}>{content}</span>)
+        if(hideBlack)
+          base.push(<span/>)
+        else
+          base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:"black", fontSize:"16px"}}>{content}</span>)
+      else
+          base.push(<span style={{border:"black 1px solid", width:"100%", height:"26px", color:"white", backgroundColor:"green", fontSize:"16px"}}>{content}</span>)
     }
     let atLeastOneFound = false
     console.log(result)
   	result.forEach((chair, index)=>{
-      if(this.state.kaiserNumberFilter.length == 10){
+      if(this.state.kaiserNumberFilter.length == 12){
         let hasKID = false
         for(let k=0; k < chair.length; k++){
           if(chair[k].kid == this.state.kaiserNumberFilter){
@@ -101,22 +107,27 @@ class DateResult extends Component{
 
 
       if(chair.length == 0){
+        // copy.unshift((<span style={{textAlign:"left", width:"100%", height:"26px", color:"black", backgroundColor:"white", fontSize:"16px"}}>{index + 1}</span>))
         arr.push((
-        <div onClick={()=>{this.flipMinimize(index)}}>
-          Chair #{index + 1}:
+        <div>
+          {scrunch ? "" : `Chair #${index + 1}`}
           <ul>
-            <Flexbox >
+            <Flexbox onClick={()=>{this.flipMinimize(index)}}>
               {copy}
             </Flexbox>
             <div>
              <Collapse in={this.state.minimizeChair[index]}>
                 <Panel bsStyle="primary">
-                  <Panel.Heading>Appointments for Chair</Panel.Heading>
+                  <Panel.Heading><div style={{display:"flex", alignItems:"center"}} onClick={()=>{this.flipMinimize(index)}}><div style={{width:"100%", flex:1}}>Appointments for Chair</div><span>Collapse</span></div></Panel.Heading>
+                  <ListGroup>
+                    {appointments}
+                  </ListGroup>
                 </Panel>
               </Collapse>
             </div>
           </ul>
-        </div>))
+        </div>
+        ))
         return
       }
       
@@ -144,7 +155,7 @@ class DateResult extends Component{
         // console.log(accumulatedApps[accumulatedApps.length -1])
       }
 
-      if(this.state.kaiserNumberFilter.length == 10){
+      if(this.state.kaiserNumberFilter.length == 12){
         accumulatedApps = accumulatedApps.filter((json)=>json.kid == this.state.kaiserNumberFilter)
       }
       accumulatedApps.forEach((json)=>{
@@ -170,7 +181,7 @@ class DateResult extends Component{
 
           slotColor = appColors[colorIndex%appColors.length]
 
-          if(this.state.kaiserNumberFilter.length == 10 && json.kid == this.state.kaiserNumberFilter){
+          if(this.state.kaiserNumberFilter.length == 12 && json.kid == this.state.kaiserNumberFilter){
             borderColor = "yellow"
             borderWidth = "2px"
           }
@@ -182,22 +193,20 @@ class DateResult extends Component{
 
       })
 
+      // copy.unshift((<span style={{textAlign:"left", width:"100%", height:"26px", color:"black", backgroundColor:"white", fontSize:"16px"}}>{index + 1}</span>))
       if(accumulatedApps.length == 0)
         accumulatedApps = (<span>No appointments found for {this.state.kaiserNumberFilter}</span>)
 		  arr.push((
-        <div onClick={()=>{this.flipMinimize(index)}}>
-          Chair #{index + 1}:
+        <div>
+          {scrunch ? "" : `Chair #${index + 1}`}
           <ul>
-            <Flexbox >
-              {timeLabels}
-            </Flexbox>
-            <Flexbox >
+            <Flexbox onClick={()=>{this.flipMinimize(index)}}>
               {copy}
             </Flexbox>
             <div>
              <Collapse in={this.state.minimizeChair[index]}>
                 <Panel bsStyle="primary">
-                  <Panel.Heading>Appointments for Chair</Panel.Heading>
+                  <Panel.Heading><div style={{display:"flex", alignItems:"center"}} onClick={()=>{this.flipMinimize(index)}}><div style={{width:"100%", flex:1}}>Appointments for Chair</div><span>Collapse</span></div></Panel.Heading>
                   <ListGroup>
                     {appointments}
                   </ListGroup>
@@ -209,7 +218,7 @@ class DateResult extends Component{
       ))
   	})
 
-    if(this.state.kaiserNumberFilter.length == 10 && !atLeastOneFound){
+    if(this.state.kaiserNumberFilter.length == 12 && !atLeastOneFound){
       return (
       <div>
         {this.props.errorMsg.length > 0 ? (<Alert bsStyle="warning">
@@ -220,7 +229,7 @@ class DateResult extends Component{
         <Form inline>
             {'Filter by Kaiser Number:'}
             <FormGroup controlId="dateKN">
-              <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
+              <FormControl type="text" placeholder="XXXXXXXXXXXX" size="13" maxLength="12" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
             </FormGroup>
         </Form>
         <span>No appointments found for {this.state.kaiserNumberFilter} on {month}/{day}/{year}. Clear the filter to get the original results.</span>
@@ -237,10 +246,12 @@ class DateResult extends Component{
         <Form inline>
             {'Filter by Kaiser Number:'}
             <FormGroup controlId="dateKN">
-              <FormControl type="text" placeholder="XXXXXXXXXX" size="11" maxLength="10" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
+              <FormControl type="text" placeholder="XXXXXXXXXXXX" size="13" maxLength="12" value={this.state.kaiserNumberFilter} onChange={(event)=>{this.setState({kaiserNumberFilter:event.target.value})}}/>
             </FormGroup>
         </Form>
         <Button onClick={this.minimizeAll}>Toggle All Chairs</Button>
+        <Button onClick={()=>{this.setState({scrunch:!this.state.scrunch})}}>Toggle Chair Label</Button>
+        <Button onClick={()=>{this.setState({hideBlack:!this.state.hideBlack})}}>Toggle Closed Hours</Button>
         {arr}
       </div>
     );

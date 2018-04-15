@@ -103,7 +103,6 @@ class SearchByDate extends Component{
   }
 
   render() {
-    console.log(this.state)
     return (
         <Panel bsStyle="primary">
           <Panel.Heading>Search by Date</Panel.Heading>

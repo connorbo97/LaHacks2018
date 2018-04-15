@@ -7,9 +7,11 @@ import SearchByKaiserNumber from './SearchByKaiserNumber.js'
 import SignOut from './SignOut.js'
 import Result from './Result.js'
 import AddAppointment from './AddAppointment.js'
+import SearchByTime from './SearchByTime.js'
 import fire from '../firebase/index.js'
 import {Grid, Row, Col} from 'react-bootstrap'
 import validator from 'validator'
+import 'react-datepicker/dist/react-datepicker.css';
 
 class Home extends Component{
 
@@ -25,7 +27,7 @@ class Home extends Component{
         loading:false,
         kaiserID:"",
     	}
-    this.setResult = this.setResult.bind(this)
+
     this.setKaiserNumberResult = this.setKaiserNumberResult.bind(this)
     this.setDateResult = this.setDateResult.bind(this)
     this.setErrorMsg = this.setErrorMsg.bind(this)
@@ -34,7 +36,7 @@ class Home extends Component{
     this.redoSearch = this.redoSearch.bind(this)
   }
 
-  setResult(result){
+  setResult = (result) => {
   	this.setState({result})
   }
 
@@ -61,17 +63,12 @@ class Home extends Component{
       alert("Error: Kaiser Number must contain only digits.")
       return
     }
-    if (kaiserNumber.toString().length != 10 || parseInt(kaiserNumber.toString()) < 0)
-    {
-      this.setLoading(false)
-      alert("Error: Kaiser Number must contain 10 digits.")
-      return
-    }
-
     var snap = await fire.database.ref(`/patients/${kaiserNumber}/appointments`).once('value')
 
     if(!snap.val()){
       this.setLoading(false)
+      this.setType("")
+      this.setResult([])
       alert(`No appointment history found for Kaiser #: ${kaiserNumber}`)
       return
     }
@@ -94,6 +91,8 @@ class Home extends Component{
     var snap = await fire.database.ref(`/dates/${state.year}/${state.month}/${state.day}/chairs`).once('value')
     if(!snap.val()){
       this.setLoading(false)
+      this.setType("")
+      this.setResult([])
       alert(`No appointments on date: ${state.month}/${state.day}/${state.year}`)
       return
     }
@@ -122,6 +121,10 @@ class Home extends Component{
     this.setType("D")
   }
 
+  setTimeResult = (startDate, endDate) => {
+    
+  }
+
   setType(type){
     this.setState({type})
   }
@@ -144,11 +147,18 @@ class Home extends Component{
           <Row>
             <Col md={10} ld={10} style={{width:"50%", borderRight:"#EEEEEE 2px solid"}}>
              <SearchByKaiserNumber setErrorMsg={this.setErrorMsg} setKaiserNumberResult={this.setKaiserNumberResult}/>
-             <hr/>
-             <SearchByDate setErrorMsg={this.setErrorMsg} setDateResult={this.setDateResult} />
             </Col>
             <Col md={10} ld={10} style={{width:"50%"}}>
               <AddAppointment setErrorMsg={this.setErrorMsg} redoSearch={this.redoSearch}/>
+            </Col>
+          </Row>
+          <hr/>
+          <Row>
+            <Col md={10} ld={10} style={{width:"50%", borderRight:"#EEEEEE 2px solid"}}>
+             <SearchByDate setErrorMsg={this.setErrorMsg} setDateResult={this.setDateResult} />
+            </Col>
+            <Col md={10} ld={10} style={{width:"50%"}}>
+              <SearchByTime setErrorMsg={this.setErrorMsg} setTimeResult={this.setTimeResult} />
             </Col>
           </Row>
         </Grid>
